@@ -1,0 +1,95 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;}
+
+html{
+    font-size: 62.5%;
+    font-family:Arial, Helvetica, sans-serif;}
+
+:root{
+    --colorFondo:#3C4D67;
+    --colorTargeta:#477046;
+    --colorDistintivo:#4c689cab;
+    --colorFondoTerminal:#0d0f1a;
+    --colorBoton:#9dbd2b;
+    --color: #202736;}
+
+body{
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--colorFondo);
+    display: flex;
+    justify-content: center;
+    align-items: center;}
+
+.contenedor--calculador{
+    width: 50%;
+    min-width: 320px;
+    max-width: 650px;
+    height: 70%;
+    border-radius: 20px;
+    background-color: var(--colorTargeta);
+    display: grid;
+    grid-template-rows: repeat(4,minmax(100px, 1fr));}
+
+
+h1{ 
+    text-align: center;
+    place-self: center;
+    padding: 0 5%;
+    color: antiquewhite;
+    font-size: 2.4rem;}
+
+textarea{
+    border-radius: 20px;
+    justify-self: center;
+    resize: none;
+    border: none;
+    outline: none;
+    width: 90%;
+    height: 100%;
+    font-size: 1.8rem;
+    padding: 5%;
+    color: aquamarine;
+    background-color: var(--colorFondoTerminal);}
+
+
+.contenedor--botones{
+    justify-self: center;
+    width: 90%;
+    height: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;}
+
+
+button{
+    width: 30%;
+    min-width: 90px;
+    height: 50%;
+    background-color: var(--colorBoton);
+    color:var(--color);
+    font-size: 1.8rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;}
+
+span{
+    border-radius: 5px;
+    place-self: center;
+    display: block;
+    padding: 1%;
+    text-align: center;
+    font-size: 2.4rem;
+    background-color: var(--colorFondoTerminal);
+    color: aquamarine;
+    width: 30%;
+    height: 30%;
+}
+
+
+
+
+
+    

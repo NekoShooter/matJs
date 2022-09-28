@@ -1,0 +1,92 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;}
+
+:root{
+    --colorFondo:#6d1581;
+    --colorTargeta:#c43e3e;
+    --colorDistintivo:#1e82b1;
+    --color: #0D0626;
+    --colorBoton:#B7C939;}
+
+html{
+    font-size: 62.5%;
+    color: var(--color);
+    font-family: Arial, Helvetica, sans-serif;}
+
+body{ 
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--colorFondo);
+    display: flex;
+    justify-content: center;
+    align-items: center;}
+
+.contenedor-calcDescuentos{
+    width: 50%;
+    min-width: 320px;
+    max-width: 450px;
+    height: 75%;
+    min-height: 450px;
+    min-height: 550px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items:center;
+    background-color: var(--colorTargeta);
+    border-radius: 10px;}
+
+.contenedor-calcDescuentos > div{
+    width: 80%;
+    padding: 20px;
+    background-color: var(--colorDistintivo);
+    border-radius: 10px;}
+
+div h1{
+    font-size: 2.4rem;
+    text-align: center;}
+
+.contenedor-form{
+    height: 70%;
+    display: grid;
+    place-items: center;}
+
+.contenedor-form form{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.8rem;}
+
+#precio, #cupon{
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    width: 80%;
+    height:30px;}
+
+input[type=submit]{
+    width: 50%;
+    height: 20%;
+    border-radius: 10px;
+    border: none;
+    background-color: var(--colorBoton);
+    color: #1C0D55;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+.contenedor-form p{
+    display: block;
+    text-align: center;
+    width: 100%;
+    height: 20%;
+    font-weight: bold;
+    color: aliceblue;}
+
+
+
