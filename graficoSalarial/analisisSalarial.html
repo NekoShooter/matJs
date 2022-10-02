@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="operaciones basicas para el Analisis Salarial">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="analisisSalaria,follow">
+        <link rel="stylesheet" href="./analisisSalarialStyle.css">
+        <title>Analisis Salarial</title>
+    </head>
+    <body>
+        <main>
+            <section class="seccion--analisisSalarial">
+                <div class="explorador">
+                    <div class="buscador">
+                        <button class="anterior"></button>
+                        <form action="">
+                            <input id="input-buscar" type="text" required placeholder="Buscar">
+                            <input type="submit" value="Buscar">
+                        </form>
+                        <button class="siguiente"></button>
+                    </div>
+                    <div class="contenedor--data">
+                        <span class="promedio oculto"></span>
+                        <span class="media oculto"></span>
+                        <span class="moda oculto"></span>
+                    </div>
+                </div>
+                <div class="analisisSalarial--grafica">
+                    <div class="contenedor--grafico">
+                        <canvas class="grafico"></canvas>
+                        <div class="contenedor--portada">
+                            <img src="./graf.png" class="portada">
+                        </div>
+                    </div>
+                    <div class="contenedor--btn">
+                        <button class="btn-promedio btn">Promedio<hr></button>
+                        <button class="btn-proyeccion btn">Proyeccion<hr></button>
+                        <button class="btn-media btn">Media<hr></button>
+                        <button class="btn-moda btn">Moda<hr></button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </body>
+    <script src="./salarios.js"></script>
+    <script src="../estadisticaBasica/estadisticaBasica.js"></script>
+    <script src="./grafico.js"></script>
+    <script src="./analisisSalariaMat.js"></script>
+</html>

@@ -1,0 +1,193 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;}
+
+:root{
+    --colorFondo:#14070d;
+    --colorGraf:#222326;
+    --sombra:#121314;
+    --reflejo:#26272b;
+    --colorBoton:#88B6F2;
+    --colorText:#BDC1BB;
+    --colorPlaceholder:#83878b;
+    --colorInactivoo: #3f3f44;
+    --colorData:#7EBF8E;
+    --amarilloTerminal:#afbf7e;
+    --azulTerminal:#9197BF;
+    --rojoCritical:#BF826B;}
+
+html{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 62.5%;
+    color: var(--colorText);}
+
+.ocultar{display: none !important;}
+
+body{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--colorGraf);}
+
+main{
+    width: 50%;
+    height: 75%;}
+
+.seccion--analisisSalarial{
+    width: 100%;
+    height: 100%;
+    background-color: var(--colorGraf);
+    box-shadow: 10px 10px 10px 0 var(--sombra), -10px -10px 10px 0 var(--reflejo);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;}
+
+
+
+.explorador{
+    width: 80%;
+    height: 20%;}
+
+.buscador{
+    width: 100%;
+    height: 80%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;}
+
+.siguiente, .anterior{
+    width: 5%;
+    height: 50%;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    background-image: url("./flacha.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;}
+
+.siguiente{ transform: scaleX(-1); }
+
+form{
+    width: 80%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;}
+
+.contenedor--data{
+    width: 100%;
+    height: 20%;
+    padding: 0 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;}
+
+
+.oculto{display: none !important;}
+.cursor-cruz{cursor: crosshair !important;}
+.color-err {color: var(--rojoCritical) !important;}
+.color-verdeTerminal{color: var(--colorData) !important;}
+.color-azulTerminal{color: var(--azulTerminal) !important;}
+.color-amarilloTerminal{color: var(--amarilloTerminal) !important;}
+
+.contenedor--data span{font-size: 1.4rem;}
+.media {color: var(--azulTerminal);}
+.moda {color: var(--amarilloTerminal);}
+.promedio{ color: var(--colorData);}
+
+#input-buscar{
+    height: 100%;
+    width: 70%;
+    background-color: transparent;
+    color: var(--colorText);
+    font-size: 2.4rem;
+    font-weight: 400;
+    letter-spacing: .1rem;
+    outline: none;
+    border: none;}
+
+#input-buscar::placeholder{ color: var(--colorPlaceholder);}
+
+input[type=submit]{
+    width: 80px;
+    height: 30px;
+    border-radius: 30px;
+    background-color: var(--colorBoton);
+    border: none;
+    cursor: pointer;}
+
+.analisisSalarial--grafica{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;}
+
+.contenedor--grafico{
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;}
+
+.contenedor--btn{
+    width: 80%;
+    height: 10%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;}
+
+.btn{
+    height: 100%;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: transparent;
+    color: var(--colorInactivoo);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    cursor: pointer;}
+
+.btn hr{
+    border: 1px solid var(--colorBoton);
+    width: 0;
+    opacity: 0;
+    transition: .2s;}
+
+.btn:hover{ color: var(--colorBoton);}
+.btn:hover hr{ 
+    width: 100%;
+    opacity: 1;
+    transition: .2s;}
+
+/*canvas{cursor:crosshair;}*/
+
+.contenedor--portada{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    position: absolute;}
+
+.portada{
+    width: 100px;
+    height: 100px;
+    
+    top:0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    background-image: url('./graf.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;}

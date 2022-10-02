@@ -19,43 +19,16 @@ function actualizar(){
     mostrarRes.innerText ='';}
 
 
-function esImpar(array){ return array.length %2;}
-
-
 function ordenar(){
-    if(estaOrdenado || !arr) return;
-    if(arr.length){
-        sort(arr, 0 , arr.length - 1);
-        reImprimir(arr);
-        estaOrdenado = true;}}
+    if(estaOrdenado) return;
+    estaOrdenado = OrdenarLista(arr);
+    reImprimir(arr);}
 
 
 function reImprimir(array){
     textArea.value ='';
     array.forEach((val, idx)=> {
         textArea.value += idx == (array.length - 1) ? val :`${val} `;});}
-
-
-function sort(array, ini, fin){
-    let izq = ini;
-    let der = fin;
-    let piv = array[~~((der + izq) / 2)];
-
-    do{
-        while (array[izq] < piv && izq < fin) ++izq;
-        while (array[der] > piv && der > ini) --der;
-
-        if(izq <= der){
-            const tmp = array[izq];
-            array[izq] = array[der];
-            array[der] = tmp;
-            ++izq;
-            --der;}
-
-    }while(izq <= der);
-
-    if(ini < der) sort(array, ini ,der);
-    if(fin > izq) sort(array, izq, fin);}
 
 
 function obtenerArray(){
@@ -81,30 +54,16 @@ function validarNum(arrNum, array){
 
 function calcPromedio(){
     if(!arr || !arr.length) return;
-    let res = arr.reduce((vacum, vres) => vacum + vres);
-    mostrarRes.innerText = (res / arr.length).toFixed(1);}
+    mostrarRes.innerText = Promedio(arr);}
 
 
 function calcModa(){
     if(!arr || !arr.length) return;
     ordenar();
-    let cont = 0;
-    const moda = {moda : 0, rep : 0}
-    let valActual = arr[0];
-    arr.forEach(val =>{
-        if(valActual == val) cont++;
-        else if(moda.rep < cont){
-            moda.moda = valActual;
-            moda.rep = cont;}
-        else cont = 1;
-        valActual = val;});
-    mostrarRes.innerText = moda.moda;}
+    mostrarRes.innerText = Moda(arr).val;}
 
 
 function calcMedia(){
     if(!arr || !arr.length) return;
     ordenar();
-    const med = ~~(arr.length / 2);
-    if(esImpar(arr)) mostrarRes.innerText = arr[med];
-    else mostrarRes.innerText = ((arr[med] + arr[med - 1]) / 2).toFixed(1);}
-
+    mostrarRes.innerText = Media(arr);}
