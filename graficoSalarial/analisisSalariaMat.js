@@ -114,7 +114,7 @@ function limpiarPantallaErr(){
     Portada.classList.add('oculto');
     txtPromedio.classList.add('oculto');
     txtPromedio.classList.remove('color-err');
-    txtPromedio.innerText = '\0';}
+    txtPromedio.innerText = '';}
 
 function BorrarDatos(){
     borrarGrafico();
@@ -132,7 +132,7 @@ function modificarRes(dato, span, btn, txt, classColor){
     span.innerText ='\0';
     if(dato.mostrar){ 
         span.classList.remove('oculto');
-        span.innerText = `${txt}: ${dato.val}\0`;
+        span.innerText = `${txt}: ${dato.val}`;
         btn.classList.add(classColor);}
     else{
         span.classList.add('oculto');
