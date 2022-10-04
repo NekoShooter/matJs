@@ -51,7 +51,7 @@ function obtenerRangos(arr_elementos, divisiones){
     let max = undefined;
     let min = undefined;
 
-    for(val of arr_elementos){
+    for(const val of arr_elementos){
         if(!max && !min) max = min = val;
         else if(val > max) max = val;
         else if(val < min) min = val;}
@@ -135,14 +135,15 @@ function obtenerParametrosDeDibujo(arr_datos, arr_ele, tam_fuente, Padding = und
     if(arr_datos.length != arr_ele.length) return undefined;
     
     const Parametros ={};
-    const rangos = obtenerRangos(arr_datos, 4);
     
     Parametros['padding'] = Padding;
     Parametros['font_t'] = tam_fuente;
     Parametros['padding'] = Padding;
-    Parametros['elementos'] = arr_ele;
+    Parametros['elementos'] = arr_ele.slice();
     Parametros['datos'] = arr_datos.slice();
-    Parametros['rangos'] = rangos;
+    Parametros['rangos'] = obtenerRangos(arr_datos, 4);
+    Parametros['espacios'] = grupoNum((Parametros.rangos[0])).dimencion;
+    Parametros['exepcion'] = Parametros.datos.length;
     reEscalarParametrosDeDibujo(Parametros);
     return Parametros;}
 
@@ -152,7 +153,6 @@ function reEscalarParametrosDeDibujo(parametroDeDibujo){
     const p = parametroDeDibujo;
     let Padding = p.padding;
     const ancho = font(p.font_t);
-    p['espacios'] = grupoNum((p.rangos[0])).dimencion;
 
     const padding_right = porcentaje(p.espacios * ancho, canvas_t.w);
     const padding_bottom = porcentaje(ancho * 3 , canvas_t.h);
@@ -181,6 +181,57 @@ function reEscalarParametrosDeDibujo(parametroDeDibujo){
     p['secH'] = obtenerDivisiones(w, p.elementos.length, mx + x);
     p['coors'] = obtenerPosDeDatos(p.datos, p.rangos, p);
     p['font'] = font(p.font_t);}
+
+
+function reEstructurarParametrosDeDibujo(parametroDeDibujo){
+    if(!parametroDeDibujo || !canvas_t) return;
+    const p = parametroDeDibujo;
+
+    if(p.datos.length != p.elementos.length) return;
+
+    p.rangos = obtenerRangos(p.datos, 4);
+    p.espacios = grupoNum((p.rangos[0])).dimencion;
+    reEscalarParametrosDeDibujo(p);}
+
+
+function agragarUnaExepcion(nuevoValor, nuevoElemento, parametroDeDibujo, idx = undefined){
+    const i = agregarDatosAParametrosDeDibujo(nuevoValor, nuevoElemento, parametroDeDibujo, idx);
+    
+    if(i !== undefined) parametroDeDibujo.exepcion = i;}
+
+
+function agregarDatosAParametrosDeDibujo(nuevoValor, nuevoElemento, parametroDeDibujo, idx = undefined){
+    if(!parametroDeDibujo) return undefined;
+    let i = idx;
+    nuevoValor = Number(nuevoValor);
+
+    if(typeof(idx) == 'number' && idx < parametroDeDibujo.datos.length){
+        parametroDeDibujo.datos.slice(idx,0, nuevoValor);
+        parametroDeDibujo.elementos.slice(idx,0, nuevoElemento);}
+    else{
+        parametroDeDibujo.datos.push(nuevoValor);
+        parametroDeDibujo.elementos.push(nuevoElemento);
+        i = parametroDeDibujo.datos.length - 1;}
+    reEstructurarParametrosDeDibujo(parametroDeDibujo);
+    
+    return i;}
+
+
+function EliminarDatoDeParametrosDeDibujo(parametroDeDibujo, idx = undefined){
+    if(!parametroDeDibujo) return;
+    let i = parametroDeDibujo.datos.length - 1;
+    if(typeof(idx) == 'number' && idx < parametroDeDibujo.datos.length) i = idx;
+    parametroDeDibujo.datos.splice(i,1);
+    parametroDeDibujo.elementos.splice(i,1);
+    reEstructurarParametrosDeDibujo(parametroDeDibujo);}
+
+function EliminarExepcion(parametroDeDibujo){
+    if(parametroDeDibujo.exepcion == parametroDeDibujo.datos.length) return;
+    let idx = undefined;
+    if(parametroDeDibujo.exepcion < parametroDeDibujo.datos.length - 1)
+        idx = parametroDeDibujo.exepcion;
+    EliminarDatoDeParametrosDeDibujo(parametroDeDibujo, idx);
+    parametroDeDibujo.exepcion = parametroDeDibujo.datos.length;}
 
 
 function obtenerPosDeDatos(arr_datos, arr_rangos, parametroDeDibujo){
@@ -244,7 +295,7 @@ function dibujarGrafica(parametroDeDibujo){
     dibujarGrilla(p);
     dibujarRegla(p);
     dibujarGraduacion(p);
-    dibujarGraficaDeDatos(p.coors);}
+    dibujarGraficaDeDatos(p);}
 
 
 function trazarLinea(XOrigen, YOrigen, XFinal, YFinal){
@@ -293,15 +344,28 @@ function dibujarGraduacion(parametroDeDibujo){
         graf.fillText(val,p.secH[idx] , p.yf + font_t + med_font);});}
     
 
-function dibujarGraficaDeDatos(arr_coors){
-    if(!arr_coors) return;
+function dibujarGraficaDeDatos(parametroDeDibujo){
+    if(!parametroDeDibujo) return;
+    const p = parametroDeDibujo;
 
     graf.strokeStyle = color.verdeTerminal;
     graf.fillStyle = color.verdeTerminal;
     graf.lineWidth = 2;
 
-    for(let i = 0; i < arr_coors.length - 1; ++i)
-        trazarLinea(arr_coors[i].x,arr_coors[i].y,arr_coors[i+1].x,arr_coors[i+1].y);}
+    for(let i = 0; i < p.coors.length - 1; ++i){
+        if(p.exepcion != i - 1 && p.exepcion != i && p.exepcion != i + 1)
+            trazarLinea(p.coors[i].x,p.coors[i].y,p.coors[i+1].x,p.coors[i+1].y);}}
+
+
+function dibujarGraficaPorIdx(parametroDeDibujo, idx, color){
+    if(!parametroDeDibujo) return;
+    const p = parametroDeDibujo;
+    graf.strokeStyle = color;
+    graf.lineWidth = 2;
+    const hayPrevio = p.exepcion - 1 >= 0;
+    const haySiguiente = p.exepcion + 1 < p.coors.length;
+    if(hayPrevio) trazarLinea(p.coors[idx - 1].x,p.coors[idx - 1].y,p.coors[idx].x,p.coors[idx].y);
+    if(haySiguiente) trazarLinea(p.coors[idx].x,p.coors[idx].y,p.coors[idx+1].x,p.coors[idx+1].y);}
 
 
 function estaDentroDelaGrafica(posX, posY, parametroDeDibujo){
@@ -314,7 +378,6 @@ function estaDentroDelaGrafica(posX, posY, parametroDeDibujo){
 
 function dibujarGraficaLinealPorPos(posX, posY, parametroDeDibujo, colorLinea = '#000', colorTxt = '#000'){
     const val = localizarValY(posY,parametroDeDibujo);
-    //trazarGraficaLineal(posY,parametroDeDibujo,undefined,colorLinea,colorTxt);
     graf.setLineDash([2, 5]);
     graf.strokeStyle = colorLinea;
     trazarLinea(posX, p.yi, posX, p.yf);
@@ -331,8 +394,15 @@ function dibujarGraficaLinealPorValor(val, parametroDeDibujo, colorLinea = '#000
 function dibujarEtiquetasDeDatos(parametroDeDibujo, colorFondo = '#000', colorTxt = '#000'){
     if(!parametroDeDibujo) return;
     const p = parametroDeDibujo;
-    p.coors.forEach((coors, idx)=>{
-        trazarEtiqueta(p.datos[idx], coors.x, coors.y, p.font, p.espacios , colorFondo, colorTxt);});}
+    for(const i in p.coors){
+        if(p.exepcion != i)
+            dibujarEtiqueta(p, i , colorFondo, colorTxt);}}
+
+
+function dibujarEtiqueta(parametroDeDibujo, idx, colorFondo = '#000', colorTxt = '#000'){
+    const p = parametroDeDibujo;
+    const coors = p.coors[idx];
+    trazarEtiqueta(p.datos[idx], coors.x, coors.y, p.font, p.espacios , colorFondo, colorTxt);}
 
 
 function trazarGraficaLineal(posY, parametroDeDibujo, val = undefined, colorLinea = '#000', colorTxt = '#000'){
@@ -373,14 +443,15 @@ function trazarEtiqueta(val, posX, posY, font, espacios, colorFondo = '#000', co
 
 function dibujarMarcadoresDeDatos(parametroDeDibujo, radio, colorMarcador = '#000'){
     if(!parametroDeDibujo) return;
-    trazarMarcadores(parametroDeDibujo.coors, radio, colorMarcador);}
-
-
-function trazarMarcadores(arr_coors, tam, colorMarcador){
-    if(!arr_coors || tam <= 0) return;
+    const p = parametroDeDibujo;
     graf.fillStyle = colorMarcador;
 
-    for(let val of arr_coors){
-        graf.beginPath();
-        graf.arc(val.x, val.y, tam, 0, 2 * Math.PI);
-        graf.fill();}}
+    p.coors.forEach((pos, idx)=>{
+        if(p.exepcion != idx)
+            trazarMarcador(pos.x, pos.y, radio);});}
+
+
+function trazarMarcador(posX, posY, radio){
+    graf.beginPath();
+    graf.arc(posX, posY, radio, 0, 2 * Math.PI);
+    graf.fill();}

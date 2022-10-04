@@ -50,3 +50,19 @@ function Moda(lista){
             moda.rep = obj.rep;}});
 
     return moda;}
+
+
+function Proyeccion(lista){
+    if(!lista) return undefined;
+    const incrementos = Array();
+    let actual = undefined;
+
+    for(let i = 1; i < lista.length; ++i){
+        const prev = lista[i - 1];
+        actual = lista[i];
+        const dif = actual - prev;
+        incrementos.push(dif / actual);}
+
+    OrdenarLista(incrementos);
+    const resMedia = Media(incrementos);
+    return ((actual * resMedia) + actual).toFixed(1);  }
