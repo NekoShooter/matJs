@@ -58,11 +58,11 @@ function Proyeccion(lista){
     let actual = undefined;
 
     for(let i = 1; i < lista.length; ++i){
-        const prev = lista[i - 1];
-        actual = lista[i];
+        const prev = Number(lista[i - 1]);
+        actual = Number(lista[i]);
         const dif = actual - prev;
         incrementos.push(dif / actual);}
 
     OrdenarLista(incrementos);
     const resMedia = Media(incrementos);
-    return ((actual * resMedia) + actual).toFixed(1);  }
+    return ((actual * resMedia) + actual).toFixed(1); }

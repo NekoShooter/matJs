@@ -282,6 +282,7 @@ function BorraCalculos(){
 
 function mostrar(calc){
     calc.mostrar = !calc.mostrar;
+    if(!filtrarPorPersona && calc.mostrar && proyeccion.mostrar) calcularProyecciones();
     graficar();
     imprimirDatos();}
 
@@ -297,11 +298,8 @@ function calculoGeneral(etiqueta, entidad, funcion){
     if(!filtrarPorPersona){
         entidad[etiqueta] = Array();
         for(const annio in entidad.historial){
-            entidad[etiqueta].push(funcion( entidad.historial[annio]));}
-
-        //entidad[etiqueta + 'Pos'] = obtenerPosDeDatos(entidad[etiqueta],p.rangos,p);
-        reDimencionarSubGrafica(undefined, etiqueta);
-    }
+            entidad[etiqueta].push(Number(funcion( entidad.historial[annio])));}
+        reDimencionarSubGrafica(undefined, etiqueta);}
 
     return funcion(entidad.salarios);}
 
@@ -350,7 +348,31 @@ function graficarProyeccion(){
     graf.setLineDash([2, 5]);
     dibujarGraficaPorIdx(p, p.exepcion, colorTendencia);
     graf.setLineDash([]);
-    dibujarEtiqueta(p, p.exepcion, colorTendencia);}
+    dibujarEtiqueta(p, p.exepcion, colorTendencia);
+    graficarProyeccionIndividual(promedio,'promedio');
+    graficarProyeccionIndividual(media,'media');
+    graficarProyeccionIndividual(moda,'moda');}
+
+
+function graficarProyeccionIndividual(propiedad, tipoCalc){
+    if(!empresa || !propiedad.mostrar) return;
+    const obj_colores = {subida : color.verdeTerminal, bajada : color.rojoCritical, estable : color.amarilloTerminal}
+    const Final  = empresa[tipoCalc].length - 1;
+    const colorTen = colorDeLaTendenciaIndividual(empresa[tipoCalc][Final - 1],empresa[tipoCalc][Final],obj_colores);
+    graf.setLineDash([2, 5]);
+    graf.strokeStyle = colorTen;
+    const pos = empresa[tipoCalc+'PosEx'][Final - 1];
+    const posF = empresa[tipoCalc+'PosEx'][Final];
+    trazarLinea(pos.x, pos.y,posF.x, posF.y);
+    trazarEtiqueta(empresa[tipoCalc][Final],posF.x,posF.y,p.font,p.espacios,colorTen);
+    graf.setLineDash([]);}
+
+
+function colorDeLaTendenciaIndividual(origen, final, obj_colores) {
+    let colorTen = obj_colores.estable;
+    if(final < origen) colorTen = obj_colores.bajada;
+    else if(final > origen) colorTen = obj_colores.subida;
+    return colorTen;}
 
 
 function colorDeLaTendencia(subida, estable, bajada){
@@ -372,9 +394,20 @@ function calcularProyeccion(){
 
     if(!proyeccion.mostrar) agragarUnaExepcion(proyeccion.val, proyeccion.ele,p);
     else EliminarExepcion(p);
+    calcularProyecciones();
 
     proyeccion.mostrar = !proyeccion.mostrar;
     graficar();}
+
+function calcularProyecciones(){
+    calcProyeccionIndividual(promedio, 'promedio');
+    calcProyeccionIndividual(media, 'media');
+    calcProyeccionIndividual(moda, 'moda');}
+
+function calcProyeccionIndividual(propiedad, tipoCalc){
+    if(filtrarPorPersona || !propiedad.mostrar || !empresa || !empresa[tipoCalc]) return;
+    if(empresa[tipoCalc].length-1 == p.exepcion) return;
+    empresa[tipoCalc].push(Number(Proyeccion(empresa[tipoCalc])));}
 
 
 function crearObjEmpresas(arr_salarios){
