@@ -10,6 +10,9 @@ const btnPromedio = document.querySelector('.btn-promedio');
 const btnMedia = document.querySelector('.btn-media');
 const btnModa = document.querySelector('.btn-moda');
 const btnProyeccion = document.querySelector('.btn-proyeccion');
+const btnFiltro = document.querySelector('.buscar-por-filtro');
+const iconoFiltro = document.querySelector('.filtro-img');
+const etiquetaFiltro = document.querySelector('.etiqueta-filtro');
 
 btnSig.addEventListener('click', siguiente);
 btnAnt.addEventListener('click', anterior);
@@ -18,6 +21,7 @@ btnPromedio.addEventListener('click', calcularPromedio);
 btnMedia.addEventListener('click', calcularMedia);
 btnModa.addEventListener('click', calcularModa);
 btnProyeccion.addEventListener('click', calcularProyeccion);
+btnFiltro.addEventListener('click', cambiarFiltro);
 
 window.addEventListener('resize', reDimencionar);
 window.addEventListener('load', reDimencionar);
@@ -30,8 +34,12 @@ canvas.addEventListener('dblclick', ocultarMarcadores);
 let idx = undefined;
 let p = undefined;
 let persona = undefined;
+let empresa = undefined;
 let traqueo = false;
 let verMarcador = undefined;
+let filtrarPorPersona = Boolean(true);
+const arr_empresa = Array();
+const empresas = crearObjEmpresas(salarios);
 const proyeccion = {val:undefined, ele:undefined, mostrar: false, tendencia:undefined};
 const promedio = {val:undefined, mostrar: false};
 const media = { val:undefined, mostrar: false};
@@ -41,20 +49,25 @@ const moda = { val:undefined, mostrar: false};
 function reDimencionar(){
     escalar();
     reEscalarParametrosDeDibujo(p);
+    reDimencionarSubGrafica(promedio, 'promedio');
+    reDimencionarSubGrafica(media, 'media');
+    reDimencionarSubGrafica(moda, 'moda');
     graficar();}
 
+function obtenerArr(){ return filtrarPorPersona ? salarios : arr_empresa;}
+function obtenerEntidad(){ return filtrarPorPersona ? persona : empresa;}
 
 function siguiente(){
-    const i = idx;
+    const arr = obtenerArr();
     if(idx === undefined) idx = -1;
-    if(idx + 1 == salarios.length) return;
+    if(idx + 1 == arr.length) return;
     ++idx;
     NuevaGrafica();}
 
 
 function anterior(){
-    const i = idx;
-    if(idx === undefined) idx = salarios.length;
+    const arr = obtenerArr();
+    if(idx === undefined) idx = arr.length;
     if(idx - 1 < 0) return;
     --idx;
     NuevaGrafica();}
@@ -71,9 +84,32 @@ function NuevaGrafica(){
 
 function graficar(){
     dibujarGrafica(p);
+    subGraficar();
     graficarProyeccion();
     graficarParametros();
+    mostrarGuiasDeSubGrafica();
     mostrarGuias();}
+
+function subGraficar(){
+    if(filtrarPorPersona || !empresa) return;
+    dibujarSubGrafica(promedio, 'promedio', color.verdeTerminal);
+    dibujarSubGrafica(media, 'media', color.azulTerminal);
+    dibujarSubGrafica(moda, 'moda', color.amarilloTerminal);}
+
+function reDimencionarSubGrafica(propiedad, llave){
+    if(propiedad && !propiedad.mostrar) return;
+    empresa[llave + 'Pos'] = obtenerPosDeDatos(empresa[llave],p.rangos,p);
+    empresa[llave + 'PosEx'] = undefined;}
+
+function dibujarSubGrafica(propiedad, tipoCalc, color){
+    if(!propiedad.mostrar) return;
+    graf.strokeStyle = color;
+    if(proyeccion.mostrar && !empresa[tipoCalc +'PosEx']) 
+        empresa[tipoCalc +'PosEx'] = obtenerPosDeDatos(empresa[tipoCalc], p.rangos, p);
+    else if(proyeccion.val !== undefined && !proyeccion.mostrar){
+        reDimencionarSubGrafica(propiedad,tipoCalc);}
+    const pos = proyeccion.mostrar ? empresa[tipoCalc +'PosEx'] : empresa[tipoCalc +'Pos']
+    graficarArrPosDeDatos(pos, p);}
 
 
 function graficarParametros(){
@@ -88,39 +124,106 @@ function mostrarGuias(){
     if(verMarcador)dibujarEtiquetasDeDatos(p, color.azulMarcado);
     else dibujarMarcadoresDeDatos(p,4, color.azulMarcado);}
 
+function mostrarGuiasDeSubGrafica(){
+    if(verMarcador === undefined || filtrarPorPersona) return;
+    if(verMarcador){
+        const etiqueta = (propiedad,llave, color)=>{
+            if(!empresa[llave] || !propiedad.mostrar) return;
+            const ll = proyeccion.mostrar ? llave + 'PosEx' : llave + 'Pos';
+            dibujarEtiquetaDeArr(empresa[ll],empresa[llave],p, color);}
+
+        etiqueta(promedio,'promedio', color.verdeTerminal);
+        etiqueta(media, 'media',color.azulTerminal);
+        etiqueta(moda, 'moda', color.amarilloTerminal);}
+
+
+    else{
+        const marcador = (propiedad, llave, Color = color.azulMarcado)=>{
+            if(!empresa[llave] || !propiedad.mostrar) return;
+            
+            const ll = proyeccion.mostrar ? llave + 'PosEx' : llave + 'Pos';
+            dibujarMarcadorDeArr(empresa[ll],4,Color);}
+        
+
+        marcador(promedio,'promedio', color.verdeTerminal);
+        marcador(media,'media',color.azulTerminal);
+        marcador(moda, 'moda', color.amarilloTerminal);}}
+
 
 function obtenerDatos(){
-    if(idx === undefined || salarios.length - 1  < idx) return;
-    const arr_salarios = salarios[idx].trabajos.map(val=> val.salario);
-    const arr_annios = salarios[idx].trabajos.map(val=> val.year);
-    construirData(salarios[idx].name, arr_salarios, arr_annios);
-    OrdenarLista(persona['salarios']);
-    buscador.value = persona.nombre;}
+    const arr = obtenerArr();
+    if(idx === undefined || arr.length - 1  < idx) return;
+
+    let arr_datos = undefined;
+    let arr_elementos = undefined;
+    const nombre = filtrarPorPersona ? salarios[idx].name : arr_empresa[idx];
+
+    if(filtrarPorPersona){
+        arr_datos = salarios[idx].trabajos.map(val=> val.salario);
+        arr_elementos = salarios[idx].trabajos.map(val=> val.year);}
+    else{
+        arr_elementos = Array();
+        arr_datos = {};
+        for(const llave in empresas[arr_empresa[idx]]){
+            arr_datos[llave] = empresas[arr_empresa[idx]][llave];
+            OrdenarLista(arr_datos[llave]);
+            arr_elementos.push(llave);}}
+
+    construirData(nombre, arr_datos, arr_elementos);
+    buscador.value = nombre;}
 
 
-function construirData(nombre ,arr_salarios, arr_annios){
-    persona = {};
-    persona['nombre'] = nombre;
-    persona['salarios'] = arr_salarios;
-    p = obtenerParametrosDeDibujo(arr_salarios, arr_annios, 14);}
+function construirData(nombre ,arr_datos, arr_elementos){
+    if(filtrarPorPersona){
+        persona = {};
+        persona['nombre'] = nombre;
+        persona['salarios'] = arr_datos;
+        p = obtenerParametrosDeDibujo(arr_datos, arr_elementos, 14);
+        OrdenarLista(persona['salarios']);}
+    else{
+        empresa = {};
+        empresa['nombre'] = arr_empresa[idx];
+        const arr_sumDatos = Array();
+
+        for(const annios in arr_datos){
+            let total = 0;
+            arr_datos[annios].forEach(dato =>{ total += dato; });
+            OrdenarLista(arr_datos[annios]);
+            arr_sumDatos.push(total);}
+
+        empresa['historial'] = arr_datos;
+
+        p = obtenerParametrosDeDibujo(arr_sumDatos, arr_elementos, 14);
+        empresa['salarios'] = arr_sumDatos;
+        OrdenarLista(empresa['salarios']);}}
+
+
 
 
 function buscar(event){
     event.preventDefault();
-    if(persona && persona.nombre == buscador.value){ return;}
+    const entidad = obtenerEntidad();
+    if(entidad && entidad.nombre == buscador.value){ return;}
     if(buscador.value ===''){ pantallaErr(); return;}
 
-    const __persona = salarios.findIndex(val => val.name === buscador.value);
-    if(__persona < 0){ pantallaErr(); return; }
+    let __idx = -1;
 
-    idx = __persona;
+    if(filtrarPorPersona) __idx = salarios.findIndex(val => val.name === buscador.value);
+    else __idx = arr_empresa.findIndex(nombre => nombre === buscador.value);
+
+    if(__idx < 0){ pantallaErr(); return; }
+
+    idx = __idx;
     NuevaGrafica();}
 
+function pantallaInicio(){
+    BorrarDatos();
+    Portada.classList.remove('oculto');
+    imprimirDatos();}
 
 function pantallaErr(){
-    BorrarDatos();
+    pantallaInicio();
     console.error('error de elemento no encontrado');
-    Portada.classList.remove('oculto');
     txtPromedio.classList.remove('oculto');
     txtPromedio.classList.add('color-err');
     txtPromedio.innerText = '-- No localizado --';}
@@ -139,7 +242,10 @@ function BorrarDatos(){
     borrarGrafico();
     idx = undefined;
     persona = undefined;
+    empresa = undefined;
     p = undefined;
+    proyeccion.mostrar = false;
+    modificarProyeccion();
     BorraCalculos();}
 
 
@@ -179,24 +285,35 @@ function mostrar(calc){
     graficar();
     imprimirDatos();}
 
-function calcularPromedio(){
-    if(!persona) return;
-    if(promedio.val === undefined)
-        promedio.val = Promedio(persona.salarios);
-    mostrar(promedio);}
+function calcular(tipoCalc, funcion){
+    const entidad = obtenerEntidad();
+    if(!entidad) return;
+    if(tipoCalc.val === undefined)
+        tipoCalc.val = funcion(entidad);
+    mostrar(tipoCalc);}
 
+
+function calculoGeneral(etiqueta, entidad, funcion){
+    if(!filtrarPorPersona){
+        entidad[etiqueta] = Array();
+        for(const annio in entidad.historial){
+            entidad[etiqueta].push(funcion( entidad.historial[annio]));}
+
+        //entidad[etiqueta + 'Pos'] = obtenerPosDeDatos(entidad[etiqueta],p.rangos,p);
+        reDimencionarSubGrafica(undefined, etiqueta);
+    }
+
+    return funcion(entidad.salarios);}
+
+
+function calcularPromedio(){
+    calcular(promedio, entidad => calculoGeneral('promedio', entidad, v => Promedio(v)));}
 
 function calcularModa(){
-    if(!persona) return;
-    if(moda.val === undefined)
-        moda.val = Moda(persona.salarios).val;
-    mostrar(moda)}
+    calcular(moda, entidad => calculoGeneral('moda', entidad, v => Moda(v).val));}
 
 function calcularMedia(){
-    if(!persona) return;
-    if(media.val === undefined)
-        media.val = Media(persona.salarios);
-    mostrar(media);}
+    calcular(media, entidad => calculoGeneral('media', entidad, v =>Media(v)));}
 
 
 function rastrear(event){
@@ -226,7 +343,7 @@ function ocultarMarcadores(event){
 
 
 function graficarProyeccion(){
-    if(!proyeccion.mostrar || !persona) return;
+    if(!proyeccion.mostrar || !obtenerEntidad()) return;
 
     let colorTendencia = colorDeLaTendencia(color.verdeTerminal,color.amarilloTerminal,color.rojoCritical);
     
@@ -243,7 +360,7 @@ function colorDeLaTendencia(subida, estable, bajada){
 
 
 function calcularProyeccion(){
-    if(!persona) return;
+    if(!obtenerEntidad()) return;
     if(proyeccion.val === undefined){
         proyeccion.val = Proyeccion(p.datos);
         let num = Number(p.elementos[p.elementos.length - 1]);
@@ -258,3 +375,32 @@ function calcularProyeccion(){
 
     proyeccion.mostrar = !proyeccion.mostrar;
     graficar();}
+
+
+function crearObjEmpresas(arr_salarios){
+    if(!arr_salarios) return undefined;
+    const obj_empresas = {};
+
+        arr_salarios.forEach(entidad =>{
+            entidad.trabajos.forEach(empresa =>{
+                if(!obj_empresas[empresa.empresa]){
+                    obj_empresas[empresa.empresa] = {}
+                    arr_empresa.push(empresa.empresa);};
+                if(!obj_empresas[empresa.empresa][empresa.year]) obj_empresas[empresa.empresa][empresa.year] = Array();
+                obj_empresas[empresa.empresa][empresa.year].push(empresa.salario);});});
+    return obj_empresas;}
+
+
+
+function cambiarFiltro(){
+    filtrarPorPersona = !filtrarPorPersona;
+    pantallaInicio();
+    modIcono();}
+
+function modIcono(){
+    if(filtrarPorPersona){
+        iconoFiltro.setAttribute('src','./persona.png');
+        etiquetaFiltro.innerText = 'Filtrar por Persona';}
+    else{
+        iconoFiltro.setAttribute('src','./empresa.png');
+        etiquetaFiltro.innerText = 'Filtrar por Empresa';}}

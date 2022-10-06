@@ -101,6 +101,8 @@ form{
 .moda {color: var(--amarilloTerminal);}
 .promedio{ color: var(--colorData);}
 
+
+
 #input-buscar{
     height: 100%;
     width: 70%;
@@ -113,6 +115,35 @@ form{
     border: none;}
 
 #input-buscar::placeholder{ color: var(--colorPlaceholder);}
+
+.buscar-por-filtro{
+    width: 30px;
+    height: 30px;
+    margin-right: 5%;
+    display: grid;
+    place-items: center;
+    position: relative;
+    cursor: pointer;}
+
+.filtro-img{
+    width: 75%;
+    height: 75%;}
+
+.etiqueta-filtro{
+    position: absolute;
+    width: 100px ;
+    top: 90%;
+    left: -100%;
+    opacity: 0;
+    transition: all .5s;
+    transition-delay: .25s;}
+
+.buscar-por-filtro:hover .etiqueta-filtro{
+    opacity: 1;
+    top: 110%;
+    transition: all .5s;}
+
+
 
 input[type=submit]{
     width: 80px;

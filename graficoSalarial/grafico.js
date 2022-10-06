@@ -239,15 +239,16 @@ function obtenerPosDeDatos(arr_datos, arr_rangos, parametroDeDibujo){
 
     const p = parametroDeDibujo;
 
-    if(arr_rangos.length != p.secV.length || arr_datos.length != p.secH.length) return undefined;
+    if(arr_rangos.length != p.secV.length) return undefined;
 
-    const arr_coors = Array(arr_datos.length);
-
-    arr_datos.forEach((val, idx)=>{
-        const pos = {};
-        pos['y'] = localizarPosY(val, p, arr_rangos);
-        pos['x'] = p.secH[idx]; 
-        arr_coors[idx] = pos});
+    const capacidad = p.secH.length <= arr_datos.length ? p.secH.length : arr_datos.length;
+    const arr_coors = Array(capacidad);
+    
+    for(let i = 0; i < capacidad; ++i){
+        const pos= {};
+        pos['y'] = localizarPosY(arr_datos[i], p, arr_rangos);
+        pos['x'] = p.secH[i];
+        arr_coors[i] = pos;}
     
     return arr_coors;}
 
@@ -260,7 +261,9 @@ function localizarPosY(val, parametroDeDibujo, arr_rangos = undefined){
     for(let i = 0; i < arr_rangos.length - 1; ++i){
         if(arr_rangos[i] >= val && arr_rangos[i+1] <= val)
             return localizar(val, arr_rangos[i], arr_rangos[i + 1],p.secV[i + 1], p.secV[i]);}
-    return undefined;}
+
+    const secFinal = (p.secV[p.secV.length - 1] - p.secV[p.secV.length - 2]) + p.secV[p.secV.length - 1];
+    return localizar(val,arr_rangos[arr_rangos.length - 1] ,0 ,secFinal, p.secV[p.secV.length - 1]);}
 
 
 function localizarValY(posY, parametroDeDibujo){
@@ -352,9 +355,16 @@ function dibujarGraficaDeDatos(parametroDeDibujo){
     graf.fillStyle = color.verdeTerminal;
     graf.lineWidth = 2;
 
-    for(let i = 0; i < p.coors.length - 1; ++i){
+    graficarArrPosDeDatos(p.coors, p);}
+
+
+function graficarArrPosDeDatos(arr_pos, parametroDeDibujo){
+    const p = parametroDeDibujo;
+    const capacidad = p.secH.length <= arr_pos.length ? p.secH.length : arr_pos.length;
+
+    for(let i = 0; i < capacidad - 1; ++i){
         if(p.exepcion != i - 1 && p.exepcion != i && p.exepcion != i + 1)
-            trazarLinea(p.coors[i].x,p.coors[i].y,p.coors[i+1].x,p.coors[i+1].y);}}
+            trazarLinea(arr_pos[i].x,arr_pos[i].y,arr_pos[i+1].x,arr_pos[i+1].y);}}
 
 
 function dibujarGraficaPorIdx(parametroDeDibujo, idx, color){
@@ -397,6 +407,15 @@ function dibujarEtiquetasDeDatos(parametroDeDibujo, colorFondo = '#000', colorTx
     for(const i in p.coors){
         if(p.exepcion != i)
             dibujarEtiqueta(p, i , colorFondo, colorTxt);}}
+            
+
+function dibujarEtiquetaDeArr(arr_pos, arr_val, parametroDeDibujo, colorFondo = '#000', colorTxt = '#000'){
+    const p = parametroDeDibujo;
+    if(!p || !arr_pos || !arr_val) return;
+    const capacidad = p.length <= arr_pos ? p.length : arr_pos.length;
+    for(let i = 0; i < capacidad; ++i){
+        if(p.exepcion != i)
+        trazarEtiqueta(arr_val[i], arr_pos[i].x, arr_pos[i].y, p.font, p.espacios , colorFondo, colorTxt);}}
 
 
 function dibujarEtiqueta(parametroDeDibujo, idx, colorFondo = '#000', colorTxt = '#000'){
@@ -444,11 +463,13 @@ function trazarEtiqueta(val, posX, posY, font, espacios, colorFondo = '#000', co
 function dibujarMarcadoresDeDatos(parametroDeDibujo, radio, colorMarcador = '#000'){
     if(!parametroDeDibujo) return;
     const p = parametroDeDibujo;
-    graf.fillStyle = colorMarcador;
+    dibujarMarcadorDeArr(p.coors, radio, colorMarcador, p.exepcion);}
 
-    p.coors.forEach((pos, idx)=>{
-        if(p.exepcion != idx)
-            trazarMarcador(pos.x, pos.y, radio);});}
+function dibujarMarcadorDeArr(arr_pos, radio, colorMarcador = '#000', exepcion = undefined){
+    graf.fillStyle = colorMarcador;
+    arr_pos.forEach((pos, idx)=>{
+        if(exepcion === undefined || exepcion != idx)
+            trazarMarcador(pos.x,pos.y,radio);});}
 
 
 function trazarMarcador(posX, posY, radio){
